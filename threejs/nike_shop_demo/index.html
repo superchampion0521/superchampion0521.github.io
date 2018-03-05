@@ -1,7 +1,105 @@
 <!DOCTYPE html>
-<html>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
-</body>
+<html lang="en">
+    <head>
+        <title>NIKE Shop</title>
+        <style>
+            html, body {
+                padding: 0;
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <script src="js/three.js"></script>
+        <script src="js/CanvasRenderer.js"></script>
+        <script src="js/OrbitControls.js"></script>
+
+        <script type="text/javascript">
+            var stats;
+            var camera, scene, renderer;
+
+            var clothGeometry;
+            var sphere;
+            var object;
+
+            init();
+            animate();
+            function init() {
+                // Scene
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0xcce0ff);
+                scene.fog = new THREE.Fog(0xcce0ff, 500, 10000);
+                // Camera
+                camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 10000);
+                camera.position.set(1000, 50, 1500);
+
+                // Lights
+                var light, materials;
+                scene.add(new THREE.AmbientLight(0x666666));
+
+                light = new THREE.DirectionalLight(0xdfebff, 1);
+                light.position.set(50, 200, 100);
+                light.position.multiplyScalar(1.3);
+
+                light.castShadow = true;
+                light.shadow.mapSize.width = 1024;
+                light.shadow.mapSize.height = 1024;
+
+                var d = 300;
+                light.shadow.camera.left = -d;
+                light.shadow.camera.right = d;
+                light.shadow.camera.top = d;
+                light.shadow.camera.bottom = -d;
+
+                light.shadow.camera.far = 1000;
+                scene.add(light);
+
+                // Cloth Material
+                var loader = new THREE.TextureLoader();
+
+                // Nike Shop
+                var nikeShopGeometry = new THREE.CubeGeometry(1200, 800, 600);
+                //var nikeShopMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+                var spriteMap = loader.load('textures/background/1.jpg');
+                var nikeShopMaterial = new THREE.MeshBasicMaterial({ map: spriteMap });
+                var nikeShopMesh = new THREE.Mesh(nikeShopGeometry, nikeShopMaterial);
+                nikeShopMesh.position.y = -150;
+                scene.add(nikeShopMesh);
+
+                // Ground
+                var groundTexture = loader.load('textures/ground/grasslight-big.jpg');
+                groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+                groundTexture.repeat.set(25, 25);
+                groundTexture.anisotropy = 16;
+
+                var groundMaterial = new THREE.MeshLambertMaterial({ map: groundTexture });
+                var mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(20000, 20000), groundMaterial);
+                mesh.position.y = -250;
+                mesh.rotation.x = -Math.PI / 2;
+                mesh.receiveShadow = true;
+                scene.add(mesh);
+
+                // Renderer
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setPixelRatio(window.devicePixelRatio);
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.body.appendChild(renderer.domElement);
+
+                // Controls
+                var controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.maxPolarAngle = Math.PI * 0.5;
+                controls.minDistance = 1000;
+                controls.maxDistance = 5000;
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                render();
+            }
+
+            function render() {
+                renderer.render(scene, camera);
+            }
+        </script>
+    </body>
 </html>
