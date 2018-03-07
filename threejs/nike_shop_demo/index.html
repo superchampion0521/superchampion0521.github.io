@@ -10,9 +10,16 @@
         </style>
     </head>
     <body>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="js/three.js"></script>
         <script src="js/CanvasRenderer.js"></script>
         <script src="js/OrbitControls.js"></script>
+        <script src="js/Detector.js"></script>
+        <script src="js/CubemapToEquirectangular.js"></script>
+
+        <script src="js/nike_shop.js"></script>
+        <script src="js/road.js"></script>
+        <script src="js/under_armour.js"></script>
 
         <script type="text/javascript">
             var stats;
@@ -22,16 +29,26 @@
             var sphere;
             var object;
 
+            var audio;
+
+            var isDragging = false;
+
             init();
             animate();
             function init() {
                 // Scene
                 scene = new THREE.Scene();
                 scene.background = new THREE.Color(0xcce0ff);
-                scene.fog = new THREE.Fog(0xcce0ff, 500, 10000);
+                //scene.fog = new THREE.Fog(0xcce0ff, 3000, 10000);
                 // Camera
-                camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 10000);
-                camera.position.set(1000, 50, 1500);
+                //camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 20000);
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 50000);
+                //camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 100, 900);
+                //camera.position.set(2200, 150, 300);
+                camera.position.set(2200, 3000, 5100);
+
+                var listener = new THREE.AudioListener();
+                camera.add(listener);
 
                 // Lights
                 var light, materials;
@@ -57,26 +74,14 @@
                 // Cloth Material
                 var loader = new THREE.TextureLoader();
 
-                // Nike Shop
-                var nikeShopGeometry = new THREE.CubeGeometry(1887, 804, 1203);
-                //var nikeShopMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-                var nikeShopSide0 = loader.load('textures/nike_shop/front.png');
-                var nikeShopSide1 = loader.load('textures/nike_shop/back.png');
-                var nikeShopSide2 = loader.load('textures/nike_shop/top.png');
-                var nikeShopSide3 = loader.load('textures/nike_shop/bottom.png');
-                var nikeShopSide4 = loader.load('textures/nike_shop/left.png');
-                var nikeShopSide5 = loader.load('textures/nike_shop/right.png');
-                var nikeShopMaterial = [
-                    new THREE.MeshBasicMaterial({ map: nikeShopSide0 }),
-                    new THREE.MeshBasicMaterial({ map: nikeShopSide1 }),
-                    new THREE.MeshBasicMaterial({ map: nikeShopSide2 }),
-                    new THREE.MeshBasicMaterial({ map: nikeShopSide3 }),
-                    new THREE.MeshBasicMaterial({ map: nikeShopSide4 }),
-                    new THREE.MeshBasicMaterial({ map: nikeShopSide5 })
-                ];
-                var nikeShopMesh = new THREE.Mesh(nikeShopGeometry, nikeShopMaterial);
-                nikeShopMesh.position.y = 150;
-                scene.add(nikeShopMesh);
+                // Put Nike Shop Model
+                createNikeShopModel(scene, listener);
+
+                // Put Road Model
+                createRoadModel(scene);
+
+                // Put Under Armour Model
+                new UnderArmourModel(scene, camera, 2200, 250, 0).create();
 
                 // Ground
                 var groundTexture = loader.load('textures/ground/grasslight-big.jpg');
@@ -100,8 +105,25 @@
                 // Controls
                 var controls = new THREE.OrbitControls(camera, renderer.domElement);
                 controls.maxPolarAngle = Math.PI * 0.5;
-                controls.minDistance = 1000;
-                controls.maxDistance = 5000;
+                controls.minDistance = 2700;
+                controls.maxDistance = 50000;
+                /*controls.minDistance = 100;
+                controls.maxDistance = 2700;
+                controls.keys = {
+                    LEFT: 37,
+                    UP: 38,
+                    RIGHT: 39,
+                    BOTTOM: 40
+                };*/
+                //controls.target.set(2200, 150, 0);
+
+                // Add Events
+                $(render.domElement).on('mousedown', function(e) {
+                    isDragging = true;
+                })
+                .on('mousemove', function(e) {
+                    if (isDragging) {}
+                })
             }
 
             function animate() {
@@ -112,6 +134,10 @@
             function render() {
                 renderer.render(scene, camera);
             }
+
+            $(document).on('mouseup', function(e) {
+                isDragging = false;
+            });
         </script>
     </body>
 </html>
